@@ -35,7 +35,7 @@ a:hover {
 }
 
 .container {
-  max-width: 1100px;
+  max-width: 1320px;
   margin: 0 auto;
   padding: 24px 20px 64px;
 }
@@ -45,7 +45,7 @@ header.site {
   background: var(--bg);
 }
 header.site .inner {
-  max-width: 1100px;
+  max-width: 1320px;
   margin: 0 auto;
   padding: 14px 20px;
   display: flex;
@@ -184,4 +184,168 @@ tbody tr:hover {
   display: flex;
   gap: 16px;
   font-size: 13px;
+}
+
+/* ---- dashboard header + refresh ------------------------------------------ */
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.refresh {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.refresh button {
+  padding: 9px 16px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.refresh button:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+.refresh button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+.refresh-msg {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---- explorer controls --------------------------------------------------- */
+.explorer .controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 8px 0 4px;
+}
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.segmented button {
+  padding: 8px 14px;
+  border: none;
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.segmented button:last-child {
+  border-right: none;
+}
+.segmented button .count {
+  color: var(--muted);
+  font-weight: 500;
+  margin-left: 4px;
+  font-size: 12px;
+}
+.segmented button.active {
+  background: var(--accent);
+  color: #fff;
+}
+.segmented button.active .count {
+  color: rgba(255, 255, 255, 0.8);
+}
+.segmented button.active.buy {
+  background: var(--green);
+}
+.segmented button.active.sell {
+  background: var(--red);
+}
+.filter-input {
+  flex: 1;
+  min-width: 220px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  outline: none;
+}
+.filter-input:focus {
+  border-color: var(--accent);
+}
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.sort select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--fg);
+}
+.result-count {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 8px 0;
+}
+
+/* ---- bigger table -------------------------------------------------------- */
+.table-wrap.big table {
+  font-size: 14px;
+}
+.table-wrap.big th,
+.table-wrap.big td {
+  padding: 12px 14px;
+}
+.table-wrap.big thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.table-wrap.big {
+  max-height: 78vh;
+  overflow-y: auto;
+}
+.company-cell {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rel-cell {
+  max-width: 220px;
+  white-space: normal;
+}
+td.strong {
+  font-weight: 600;
+}
+
+/* buy / sell pills */
+.badge-side {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.badge-side.buy {
+  background: rgba(22, 163, 74, 0.12);
+  color: var(--green);
+}
+.badge-side.sell {
+  background: rgba(220, 38, 38, 0.12);
+  color: var(--red);
 }

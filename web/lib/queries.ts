@@ -6,16 +6,20 @@ import type { FilingRow, FilingDetail } from "./types";
 const FILING_SELECT =
   "accession_no, form_type, filing_date, period_of_report, insider_title, is_director, is_officer, is_ten_pct, source_url, raw_xml_url, issuers(cik, name, ticker), insiders(cik, name)";
 
-/** Newest filings for the dashboard. */
-export async function getLatestFilings(limit = 50): Promise<FilingRow[]> {
+// Same as FILING_SELECT but joins the transactions so the dashboard can show
+// buy/sell type, shares, price and value (those live on the transactions table).
+const FILING_DETAIL_SELECT = `${FILING_SELECT}, transactions(*)`;
+
+/** Newest filings for the dashboard, with their transactions joined in. */
+export async function getLatestFilings(limit = 300): Promise<FilingDetail[]> {
   const { data, error } = await supabase
     .from("filings")
-    .select(FILING_SELECT)
+    .select(FILING_DETAIL_SELECT)
     .order("filing_date", { ascending: false })
     .order("ingested_at", { ascending: false })
     .limit(limit);
   if (error) throw new Error(error.message);
-  return (data ?? []) as unknown as FilingRow[];
+  return (data ?? []) as unknown as FilingDetail[];
 }
 
 /**
@@ -23,7 +27,7 @@ export async function getLatestFilings(limit = 50): Promise<FilingRow[]> {
  * Strategy: resolve matching issuer/insider CIKs first (trigram-ish ilike),
  * then fetch filings referencing them. Simple and index-friendly.
  */
-export async function searchFilings(q: string, limit = 100): Promise<FilingRow[]> {
+export async function searchFilings(q: string, limit = 300): Promise<FilingDetail[]> {
   const term = q.trim();
   if (!term) return [];
 
@@ -48,12 +52,12 @@ export async function searchFilings(q: string, limit = 100): Promise<FilingRow[]
 
   const { data, error } = await supabase
     .from("filings")
-    .select(FILING_SELECT)
+    .select(FILING_DETAIL_SELECT)
     .or(orParts.join(","))
     .order("filing_date", { ascending: false })
     .limit(limit);
   if (error) throw new Error(error.message);
-  return (data ?? []) as unknown as FilingRow[];
+  return (data ?? []) as unknown as FilingDetail[];
 }
 
 /** One filing + its transactions, by accession number. */

@@ -45,3 +45,28 @@ export interface TransactionRow {
 export interface FilingDetail extends FilingRow {
   transactions: TransactionRow[];
 }
+
+/**
+ * A flattened, display-ready row for the dashboard table. Collapses a filing +
+ * its (representative) transaction into one record the client table can sort
+ * and filter without re-touching the DB.
+ */
+export interface FilingSummary {
+  accession_no: string;
+  filing_date: string;
+  form_type: string;
+  ticker: string | null;
+  company: string | null;
+  companyCik: number | null;
+  insider: string | null;
+  insiderCik: number | null;
+  relationship: string;
+  code: string | null; // primary transaction code (P/S/A/D/…)
+  codeLabel: string;
+  direction: "A" | "D" | null; // acquired (buy) / disposed (sell)
+  isPurchase: boolean; // open-market buy (code P)
+  isSale: boolean; // open-market sale (code S)
+  shares: number | null;
+  price: number | null;
+  value: number | null; // shares × price for the representative transaction
+}
