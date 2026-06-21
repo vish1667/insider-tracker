@@ -10,15 +10,25 @@ export const supabase = createClient(config.supabaseUrl, config.supabaseServiceR
   auth: { persistSession: false },
 });
 
-/** Return the set of accession numbers (from the given list) already stored. */
+/**
+ * Return the set of accession numbers (from the given list) already stored.
+ * Batched: a single `.in()` over a full daily index (~1.7k accessions) builds a
+ * query string tens of KB long, which the HTTP layer rejects as "fetch failed".
+ */
 export async function findExistingAccessions(accessions: string[]): Promise<Set<string>> {
   if (accessions.length === 0) return new Set();
-  const { data, error } = await supabase
-    .from("filings")
-    .select("accession_no")
-    .in("accession_no", accessions);
-  if (error) throw new Error(`findExistingAccessions failed: ${error.message}`);
-  return new Set((data ?? []).map((r) => r.accession_no as string));
+  const CHUNK = 200;
+  const found = new Set<string>();
+  for (let i = 0; i < accessions.length; i += CHUNK) {
+    const batch = accessions.slice(i, i + CHUNK);
+    const { data, error } = await supabase
+      .from("filings")
+      .select("accession_no")
+      .in("accession_no", batch);
+    if (error) throw new Error(`findExistingAccessions failed: ${error.message}`);
+    for (const r of data ?? []) found.add(r.accession_no as string);
+  }
+  return found;
 }
 
 /** Upsert an issuer by CIK (idempotent). No-op if CIK is missing. */
