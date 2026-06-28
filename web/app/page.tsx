@@ -8,8 +8,27 @@ import { getLatestFilings, searchFilings } from "@/lib/queries";
 import { summarize } from "@/lib/summary";
 import { computeStats, computeClusterBuys } from "@/lib/stats";
 
-// Always render fresh data (the worker updates the DB out of band).
 export const dynamic = "force-dynamic";
+
+async function FilingsSection({ q }: { q: string }) {
+  const filings = q ? await searchFilings(q) : await getLatestFilings(200);
+  const summaries = filings.map(summarize);
+  const stats = computeStats(summaries);
+  const clusters = q ? [] : computeClusterBuys(summaries);
+
+  return (
+    <>
+      <p className="subtitle" style={{ marginBottom: "1rem" }}>
+        {q
+          ? `${filings.length} filing(s) matching ticker, company, or insider.`
+          : `${filings.length} Form 4 filings loaded from SEC EDGAR.`}
+      </p>
+      <StatCards stats={stats} />
+      {!q && <ClusterBuys clusters={clusters} />}
+      <FilingsExplorer filings={summaries} />
+    </>
+  );
+}
 
 export default async function HomePage({
   searchParams,
@@ -17,34 +36,29 @@ export default async function HomePage({
   searchParams: { q?: string };
 }) {
   const q = searchParams.q?.trim() ?? "";
-  const filings = q ? await searchFilings(q) : await getLatestFilings(20);
-  const summaries = filings.map(summarize);
-  const stats = computeStats(summaries);
-  const clusters = q ? [] : computeClusterBuys(summaries);
 
   return (
     <>
       <div className="page-head">
         <div>
-          <h1>{q ? `Results for “${q}”` : "Insider filings"}</h1>
-          <p className="subtitle">
-            {q
-              ? `${filings.length} filing(s) matching ticker, company, or insider.`
-              : "Latest Form 4 filings from SEC EDGAR — buys shown first."}
-          </p>
+          <h1>{q ? `Results for "${q}"` : "Insider filings"}</h1>
         </div>
         <RefreshButton />
       </div>
-
-      <StatCards stats={stats} />
-
-      {!q && <ClusterBuys clusters={clusters} />}
 
       <Suspense>
         <SearchBar />
       </Suspense>
 
-      <FilingsExplorer filings={summaries} />
+      <Suspense
+        fallback={
+          <div style={{ padding: "3rem", textAlign: "center", color: "var(--muted)" }}>
+            Fetching filings from SEC EDGAR…
+          </div>
+        }
+      >
+        <FilingsSection q={q} />
+      </Suspense>
     </>
   );
 }
