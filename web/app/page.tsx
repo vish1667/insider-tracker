@@ -17,7 +17,7 @@ export default async function HomePage({
   searchParams: { q?: string };
 }) {
   const q = searchParams.q?.trim() ?? "";
-  const filings = q ? await searchFilings(q) : await getLatestFilings(500);
+  const filings = q ? await searchFilings(q) : await getLatestFilings(20);
   const summaries = filings.map(summarize);
   const stats = computeStats(summaries);
   const clusters = q ? [] : computeClusterBuys(summaries);
